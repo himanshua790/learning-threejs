@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<link rel="icon" type="image/svg+xml" href="/vite.svg" />
+	<link rel="stylesheet" href="./style.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Vite App</title>
+	<script src="/detector.js"></script>
+</head>
+
+<body>
+	<div id="app"></div>
+	<div id="canvas"></div>
+	<script id="vs" type="x-shader/x-vertex">
+
+		varying vec2 vUv;
+
+		void main() {
+
+			vUv = uv;
+			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+
+		}
+
+	</script>
+
+	<script id="fs" type="x-shader/x-fragment">
+
+		uniform sampler2D map;
+
+		uniform vec3 fogColor;
+		uniform float fogNear;
+		uniform float fogFar;
+
+		varying vec2 vUv;
+
+		void main() {
+
+			float depth = gl_FragCoord.z / gl_FragCoord.w;
+			float fogFactor = smoothstep( fogNear, fogFar, depth );
+
+			gl_FragColor = texture2D( map, vUv );
+			gl_FragColor.w *= pow( gl_FragCoord.z, 20.0 );
+			gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
+		}
+
+	</script>
+	<script type="module" src="/main.js"></script>
+</body>
+
+</html>
